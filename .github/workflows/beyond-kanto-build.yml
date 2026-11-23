@@ -1,17 +1,16 @@
-name: Beyond Kanto Build
+name: Beyond Kanto Playable Patch
 
 on:
   push:
     branches: [ beyond-kanto ]
 
 jobs:
-  build-firered-modern:
+  build-playable-patch:
     runs-on: ubuntu-latest
     env:
       GAME_VERSION: FIRERED
       GAME_LANGUAGE: ENGLISH
       GAME_REVISION: 0
-      MODERN: 1
       COMPARE: 0
     steps:
       - name: Checkout Beyond Kanto
@@ -27,19 +26,24 @@ jobs:
       - name: Build Pokémon Beyond Kanto
         run: |
           make -j$(nproc) all
-          cp pokefirered_modern.gba /tmp/pokefirered-beyond-kanto.gba
+          cp pokefirered.gba /tmp/pokefirered-beyond-kanto.gba
 
-      - name: Build clean FireRed reference
+      - name: Build clean FireRed v1.0 reference
         run: |
           git worktree add /tmp/pokefirered-base master
           cd /tmp/pokefirered-base
           make -j$(nproc) all
-          cp pokefirered_modern.gba /tmp/pokefirered-base.gba
+          cp pokefirered.gba /tmp/pokefirered-base.gba
+
+      - name: Verify exact FireRed base
+        run: |
+          BASE_SHA=$(sha1sum /tmp/pokefirered-base.gba | awk '{print $1}')
+          echo "Base SHA1: $BASE_SHA"
+          test "$BASE_SHA" = "41cb23d8dccc8ebd7c649cd8fbb58eeace6e2fdc"
 
       - name: Create playable IPS patch
         run: |
           python3 tools/make_ips.py             /tmp/pokefirered-base.gba             /tmp/pokefirered-beyond-kanto.gba             pokemon-beyond-kanto.ips
-          sha1sum /tmp/pokefirered-base.gba
           ls -lh pokemon-beyond-kanto.ips
 
       - name: Upload Beyond Kanto patch
