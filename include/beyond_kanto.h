@@ -29,6 +29,8 @@ u16 BeyondKanto_GetBestWinStreak(void);
 u16 BeyondKanto_GetReputation(void);
 u16 BeyondKanto_GetTournamentWins(void);
 u16 BeyondKanto_GetChampionDefenses(void);
-u8 BeyondKanto_GetTier(void);
+u16 BeyondKanto_GetTier(void);
+u16 BeyondKanto_SpecialRecordTournamentWin(void);
+u16 BeyondKanto_SpecialRecordChampionDefense(void);
 
 #endif // GUARD_BEYOND_KANTO_H
