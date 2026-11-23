@@ -1,4 +1,5 @@
 #include "global.h"
+#include "beyond_kanto.h"
 #include "task.h"
 #include "help_system.h"
 #include "overworld.h"
@@ -905,6 +906,9 @@ void StartTrainerBattle(void)
 
 static void CB2_EndTrainerBattle(void)
 {
+    if (gTrainerBattleOpponent_A != TRAINER_SECRET_BASE)
+        BeyondKanto_RecordTrainerBattleResult(!IsPlayerDefeated(gBattleOutcome));
+
     if (sTrainerBattleMode == TRAINER_BATTLE_EARLY_RIVAL)
     {
         if (IsPlayerDefeated(gBattleOutcome) == TRUE)
@@ -953,6 +957,9 @@ static void CB2_EndTrainerBattle(void)
 
 static void CB2_EndRematchBattle(void)
 {
+    if (gTrainerBattleOpponent_A != TRAINER_SECRET_BASE)
+        BeyondKanto_RecordTrainerBattleResult(!IsPlayerDefeated(gBattleOutcome));
+
     if (gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
     {
         SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);
