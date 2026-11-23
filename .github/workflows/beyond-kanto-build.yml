@@ -11,6 +11,7 @@ jobs:
       GAME_VERSION: FIRERED
       GAME_LANGUAGE: ENGLISH
       GAME_REVISION: 0
+      MODERN: 0
       COMPARE: 0
     steps:
       - name: Checkout Beyond Kanto
@@ -18,10 +19,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install ARM toolchain and dependencies
+      - name: Checkout agbcc
+        uses: actions/checkout@master
+        with:
+          path: agbcc
+          repository: pret/agbcc
+
+      - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev
+          sudo apt update
+          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev
+
+      - name: Install agbcc into Beyond Kanto
+        run: |
+          ./build.sh
+          ./install.sh ../
+        working-directory: ./agbcc
 
       - name: Build Pokémon Beyond Kanto
         run: |
@@ -31,11 +44,12 @@ jobs:
       - name: Build clean FireRed v1.0 reference
         run: |
           git worktree add /tmp/pokefirered-base master
+          ./agbcc/install.sh /tmp/pokefirered-base
           cd /tmp/pokefirered-base
           make -j$(nproc) all
           cp pokefirered.gba /tmp/pokefirered-base.gba
 
-      - name: Verify exact FireRed base
+      - name: Verify exact FireRed v1.0 base
         run: |
           BASE_SHA=$(sha1sum /tmp/pokefirered-base.gba | awk '{print $1}')
           echo "Base SHA1: $BASE_SHA"
