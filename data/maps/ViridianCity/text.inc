@@ -126,7 +126,7 @@ ViridianCity_Text_GymDoorsAreLocked::
 
 ViridianCity_Text_BeyondKantoLeagueBoard1::
     .string "KANTO LEAGUE BOARD\p"
-    .string "GLOBAL RANK: #{STR_VAR_1}\n"
+    .string "GLOBAL RANK: {STR_VAR_1}\n"
     .string "RATING: {STR_VAR_2} RP\n"
     .string "CAREER WINS: {STR_VAR_3}$"
 
