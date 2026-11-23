@@ -76,7 +76,7 @@ void BeyondKantoFollower_Remove(void)
 {
     u8 objectEventId;
 
-    if (TryGetObjectEventIdByLocalIdAndMap(
+    if (!TryGetObjectEventIdByLocalIdAndMap(
             LOCALID_BK_FOLLOWER,
             gSaveBlock1Ptr->location.mapNum,
             gSaveBlock1Ptr->location.mapGroup,
@@ -98,7 +98,7 @@ void BeyondKantoFollower_OnMapLoad(void)
     s16 y;
     u8 direction;
 
-    if (TryGetObjectEventIdByLocalIdAndMap(
+    if (!TryGetObjectEventIdByLocalIdAndMap(
             LOCALID_BK_FOLLOWER,
             gSaveBlock1Ptr->location.mapNum,
             gSaveBlock1Ptr->location.mapGroup,
