@@ -3,8 +3,6 @@ name: Beyond Kanto Build
 on:
   push:
     branches: [ beyond-kanto ]
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build-firered-modern:
@@ -29,14 +27,14 @@ jobs:
       - name: Build Pokémon Beyond Kanto
         run: |
           make -j$(nproc) all
-          cp pokefirered.gba /tmp/pokefirered-beyond-kanto.gba
+          cp pokefirered_modern.gba /tmp/pokefirered-beyond-kanto.gba
 
       - name: Build clean FireRed reference
         run: |
           git worktree add /tmp/pokefirered-base master
           cd /tmp/pokefirered-base
           make -j$(nproc) all
-          cp pokefirered.gba /tmp/pokefirered-base.gba
+          cp pokefirered_modern.gba /tmp/pokefirered-base.gba
 
       - name: Create playable IPS patch
         run: |
