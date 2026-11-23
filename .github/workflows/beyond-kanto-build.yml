@@ -44,7 +44,7 @@ jobs:
       - name: Build clean FireRed v1.0 reference
         run: |
           git worktree add /tmp/pokefirered-base master
-          ./agbcc/install.sh /tmp/pokefirered-base
+          (cd agbcc && ./install.sh /tmp/pokefirered-base)
           cd /tmp/pokefirered-base
           make -j$(nproc) all
           cp pokefirered.gba /tmp/pokefirered-base.gba
