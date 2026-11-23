@@ -8,8 +8,6 @@
 #include "constants/pokemon.h"
 #include "constants/species.h"
 
-#define LOCALID_BK_FOLLOWER 254
-
 static u8 GetFollowerGraphicsId(u16 species)
 {
     switch (species)
