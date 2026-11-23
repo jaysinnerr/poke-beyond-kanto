@@ -16,8 +16,10 @@ jobs:
       MODERN: 1
       COMPARE: 0
     steps:
-      - name: Checkout
+      - name: Checkout Beyond Kanto
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install ARM toolchain and dependencies
         run: |
@@ -25,4 +27,26 @@ jobs:
           sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev
 
       - name: Build Pokémon Beyond Kanto
-        run: make -j$(nproc) all
+        run: |
+          make -j$(nproc) all
+          cp pokefirered.gba /tmp/pokefirered-beyond-kanto.gba
+
+      - name: Build clean FireRed reference
+        run: |
+          git worktree add /tmp/pokefirered-base master
+          cd /tmp/pokefirered-base
+          make -j$(nproc) all
+          cp pokefirered.gba /tmp/pokefirered-base.gba
+
+      - name: Create playable IPS patch
+        run: |
+          python3 tools/make_ips.py             /tmp/pokefirered-base.gba             /tmp/pokefirered-beyond-kanto.gba             pokemon-beyond-kanto.ips
+          sha1sum /tmp/pokefirered-base.gba
+          ls -lh pokemon-beyond-kanto.ips
+
+      - name: Upload Beyond Kanto patch
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-beyond-kanto-playable-patch
+          path: pokemon-beyond-kanto.ips
+          if-no-files-found: error
