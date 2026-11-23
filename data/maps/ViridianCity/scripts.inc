@@ -58,7 +58,15 @@ ViridianCity_EventScript_CitySign::
 	end
 
 ViridianCity_EventScript_TrainerTips1::
-	msgbox ViridianCity_Text_CatchMonsForEasierBattles, MSGBOX_SIGN
+	special BeyondKanto_GetGlobalRank
+	buffernumberstring STR_VAR_1, VAR_BK_GLOBAL_RANK
+	buffernumberstring STR_VAR_2, VAR_BK_LEAGUE_POINTS
+	buffernumberstring STR_VAR_3, VAR_BK_WINS
+	msgbox ViridianCity_Text_BeyondKantoLeagueBoard1, MSGBOX_SIGN
+	buffernumberstring STR_VAR_1, VAR_BK_LOSSES
+	buffernumberstring STR_VAR_2, VAR_BK_WIN_STREAK
+	buffernumberstring STR_VAR_3, VAR_BK_REPUTATION
+	msgbox ViridianCity_Text_BeyondKantoLeagueBoard2, MSGBOX_SIGN
 	end
 
 ViridianCity_EventScript_TrainerTips2::
