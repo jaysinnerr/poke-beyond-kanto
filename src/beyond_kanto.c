@@ -31,11 +31,12 @@ static void RecalculateGlobalRank(void)
     }
     else
     {
-        progress = (points - BK_INITIAL_LEAGUE_POINTS) * 4;
-        if (progress >= BK_INITIAL_GLOBAL_RANK - 1)
+        progress = (u32)(points - BK_INITIAL_LEAGUE_POINTS) * (BK_INITIAL_GLOBAL_RANK - 1);
+        progress /= (BK_MAX_LEAGUE_POINTS - BK_INITIAL_LEAGUE_POINTS);
+        rank = BK_INITIAL_GLOBAL_RANK - progress;
+
+        if (rank < 1)
             rank = 1;
-        else
-            rank = BK_INITIAL_GLOBAL_RANK - progress;
     }
 
     VarSet(VAR_BK_GLOBAL_RANK, rank);
@@ -112,6 +113,8 @@ void BeyondKanto_RecordChampionDefense(void)
     BeyondKanto_InitLeagueProfile();
     ClampAddVar(VAR_BK_CHAMPION_DEFENSES, 1, 9999);
     ClampAddVar(VAR_BK_REPUTATION, 50, BK_MAX_REPUTATION);
+    VarSet(VAR_BK_LEAGUE_POINTS, BK_MAX_LEAGUE_POINTS);
+    VarSet(VAR_BK_GLOBAL_RANK, 1);
 }
 
 u16 BeyondKanto_GetLeaguePoints(void)
