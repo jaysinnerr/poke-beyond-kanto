@@ -191,19 +191,20 @@
 #define VAR_MAP_SCENE_MT_MOON_B2F                                              0x408B
 
 
-#define VAR_0x408C                 0x408C
-#define VAR_0x408D                 0x408D
-#define VAR_0x408E                 0x408E
-#define VAR_0x408F                 0x408F
-#define VAR_0x4090                 0x4090
-#define VAR_0x4091                 0x4091
-#define VAR_0x4092                 0x4092
-#define VAR_0x4093                 0x4093
-#define VAR_0x4094                 0x4094
-#define VAR_0x4095                 0x4095
-#define VAR_0x4096                 0x4096
-#define VAR_0x4097                 0x4097
-#define VAR_0x4098                 0x4098
+// Pokémon: Beyond Kanto persistent League / world-state data.
+#define VAR_BK_LEAGUE_POINTS       0x408C
+#define VAR_BK_GLOBAL_RANK         0x408D
+#define VAR_BK_WINS                0x408E
+#define VAR_BK_LOSSES              0x408F
+#define VAR_BK_WIN_STREAK          0x4090
+#define VAR_BK_BEST_WIN_STREAK     0x4091
+#define VAR_BK_REPUTATION          0x4092
+#define VAR_BK_CHAMPION_DEFENSES   0x4093
+#define VAR_BK_TOURNAMENT_WINS     0x4094
+#define VAR_BK_RIVAL_KAI_STAGE     0x4095
+#define VAR_BK_RIVAL_MAYA_STAGE    0x4096
+#define VAR_BK_RIVAL_DAMON_STAGE   0x4097
+#define VAR_BK_INITIALIZED         0x4098
 #define VAR_0x4099                 0x4099
 #define VAR_0x409A                 0x409A
 #define VAR_0x409B                 0x409B
