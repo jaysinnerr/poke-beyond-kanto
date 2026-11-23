@@ -70,6 +70,62 @@ static u16 GetLeadFollowerSpecies(void)
     return SPECIES_NONE;
 }
 
+static u8 TurnLeft(u8 direction)
+{
+    switch (direction)
+    {
+    case DIR_NORTH: return DIR_WEST;
+    case DIR_SOUTH: return DIR_EAST;
+    case DIR_WEST:  return DIR_SOUTH;
+    case DIR_EAST:  return DIR_NORTH;
+    default:        return DIR_SOUTH;
+    }
+}
+
+static u8 TurnRight(u8 direction)
+{
+    switch (direction)
+    {
+    case DIR_NORTH: return DIR_EAST;
+    case DIR_SOUTH: return DIR_WEST;
+    case DIR_WEST:  return DIR_NORTH;
+    case DIR_EAST:  return DIR_SOUTH;
+    default:        return DIR_SOUTH;
+    }
+}
+
+static bool8 TryGetSafeFollowerSpawnCoords(s16 *x, s16 *y, u8 playerDirection)
+{
+    struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    u8 directions[4];
+    s16 playerX;
+    s16 playerY;
+    u8 i;
+
+    directions[0] = GetOppositeDirection(playerDirection);
+    directions[1] = TurnLeft(playerDirection);
+    directions[2] = TurnRight(playerDirection);
+    directions[3] = playerDirection;
+
+    PlayerGetDestCoords(&playerX, &playerY);
+
+    for (i = 0; i < ARRAY_COUNT(directions); i++)
+    {
+        s16 candidateX = playerX;
+        s16 candidateY = playerY;
+
+        MoveCoords(directions[i], &candidateX, &candidateY);
+        if (GetCollisionAtCoords(player, candidateX, candidateY, directions[i]) == COLLISION_NONE)
+        {
+            *x = candidateX;
+            *y = candidateY;
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 void BeyondKantoFollower_Remove(void)
 {
     u8 objectEventId;
@@ -111,9 +167,9 @@ void BeyondKantoFollower_OnMapLoad(void)
     if (graphicsId >= NUM_OBJ_EVENT_GFX)
         return;
 
-    PlayerGetDestCoords(&x, &y);
     direction = GetPlayerFacingDirection();
-    MoveCoords(GetOppositeDirection(direction), &x, &y);
+    if (!TryGetSafeFollowerSpawnCoords(&x, &y, direction))
+        return;
 
     objectEventId = SpawnSpecialObjectEventParameterized(
         graphicsId,
