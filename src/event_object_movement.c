@@ -1,4 +1,5 @@
 #include "global.h"
+#include "beyond_kanto_follower.h"
 #include "gflib.h"
 #include "event_data.h"
 #include "event_object_movement.h"
@@ -4906,6 +4907,11 @@ static bool8 DoesObjectCollideWithObjectAt(struct ObjectEvent *objectEvent, s16 
         curObject = &gObjectEvents[i];
         if (curObject->active && curObject != objectEvent)
         {
+            // The following Pokémon is visual companionship, not a blocking obstacle.
+            // Ignoring object-event collisions prevents player/NPC softlocks in narrow paths.
+            if (curObject->localId == LOCALID_BK_FOLLOWER || objectEvent->localId == LOCALID_BK_FOLLOWER)
+                continue;
+
             if ((curObject->currentCoords.x == x && curObject->currentCoords.y == y) || (curObject->previousCoords.x == x && curObject->previousCoords.y == y))
             {
                 if (AreElevationsCompatible(objectEvent->currentElevation, curObject->currentElevation))
