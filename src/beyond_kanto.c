@@ -168,7 +168,7 @@ u16 BeyondKanto_GetChampionDefenses(void)
     return VarGet(VAR_BK_CHAMPION_DEFENSES);
 }
 
-u8 BeyondKanto_GetTier(void)
+u16 BeyondKanto_GetTier(void)
 {
     u16 points = BeyondKanto_GetLeaguePoints();
 
@@ -188,4 +188,16 @@ u8 BeyondKanto_GetTier(void)
         return BK_TIER_ROOKIE;
 
     return BK_TIER_UNRANKED;
+}
+
+u16 BeyondKanto_SpecialRecordTournamentWin(void)
+{
+    BeyondKanto_RecordTournamentWin();
+    return 0;
+}
+
+u16 BeyondKanto_SpecialRecordChampionDefense(void)
+{
+    BeyondKanto_RecordChampionDefense();
+    return 0;
 }
