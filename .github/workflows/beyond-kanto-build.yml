@@ -54,31 +54,40 @@ jobs:
           EMU_PID=$!
           trap 'kill $EMU_PID 2>/dev/null || true' EXIT
 
-          sleep 5
+          sleep 8
           WINDOW=$(xdotool search --onlyvisible --name "mGBA" | head -1)
           test -n "$WINDOW"
           xdotool windowfocus "$WINDOW"
+          scrot /tmp/beyond-kanto-before-input.png
 
-          # Start skips the attract sequence; X is mGBA's default GBA A button.
-          xdotool key --window "$WINDOW" Return
-          sleep 2
-          xdotool key --window "$WINDOW" Return
-          sleep 2
-          xdotool key --window "$WINDOW" x
-          sleep 2
+          # mGBA defaults: GBA A = keyboard X, B = Z, Start = Enter.
+          xdotool keydown --window "$WINDOW" x
+          sleep 0.25
+          xdotool keyup --window "$WINDOW" x
+          sleep 1
+          scrot /tmp/beyond-kanto-after-a.png
 
-          # Advance several Oak/introduction text boxes and exercise directional input.
-          for i in $(seq 1 8); do
-            xdotool key --window "$WINDOW" x
-            sleep 0.7
+          if cmp -s /tmp/beyond-kanto-before-input.png /tmp/beyond-kanto-after-a.png; then
+            echo "Screen did not react to GBA A input."
+            exit 1
+          fi
+
+          # Continue through several tutorial/intro pages with deliberate presses.
+          for i in $(seq 1 14); do
+            xdotool keydown --window "$WINDOW" x
+            sleep 0.12
+            xdotool keyup --window "$WINDOW" x
+            sleep 0.45
           done
-          xdotool key --window "$WINDOW" Down Up Left Right
-          sleep 2
+          xdotool keydown --window "$WINDOW" Return
+          sleep 0.15
+          xdotool keyup --window "$WINDOW" Return
+          sleep 1
 
           kill -0 "$EMU_PID"
           scrot /tmp/beyond-kanto-smoke.png
           test -s /tmp/beyond-kanto-smoke.png
-          echo "mGBA accepted gameplay input and remained alive."
+          echo "mGBA accepted GBA input, changed game state, and remained alive."
           EOF
           chmod +x /tmp/bk-smoke.sh
           xvfb-run -a -s "-screen 0 1280x720x24" /tmp/bk-smoke.sh
@@ -87,7 +96,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: beyond-kanto-qa-screenshot
-          path: /tmp/beyond-kanto-smoke.png
+          path: |
+            /tmp/beyond-kanto-before-input.png
+            /tmp/beyond-kanto-after-a.png
+            /tmp/beyond-kanto-smoke.png
           if-no-files-found: error
 
       - name: Build clean FireRed v1.0 reference
