@@ -1,0 +1,40 @@
+name: Standalone GBA Build
+
+on:
+  push:
+    branches: [ standalone-gba ]
+  workflow_dispatch:
+
+concurrency:
+  group: standalone-gba
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkitarm:20260610
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build standalone Beyond Kanto ROM
+        working-directory: standalone
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          make -j2
+          test -s beyond-kanto-standalone.gba
+
+      - name: Verify GBA header and size
+        working-directory: standalone
+        run: |
+          ls -lh beyond-kanto-standalone.gba
+          test $(stat -c%s beyond-kanto-standalone.gba) -gt 1024
+
+      - name: Upload directly playable ROM
+        uses: actions/upload-artifact@v4
+        with:
+          name: beyond-kanto-standalone-gba
+          path: standalone/beyond-kanto-standalone.gba
+          if-no-files-found: error
