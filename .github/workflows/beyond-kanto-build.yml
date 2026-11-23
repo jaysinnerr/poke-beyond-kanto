@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev mgba-sdl xvfb
+          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev mgba-sdl xvfb xdotool scrot
 
       - name: Install agbcc into Beyond Kanto
         run: |
@@ -45,17 +45,50 @@ jobs:
           make -j$(nproc) all
           cp pokefirered.gba /tmp/pokefirered-beyond-kanto.gba
 
-      - name: Emulator boot smoke test
+      - name: Emulator input smoke playthrough
         run: |
-          set +e
-          SDL_AUDIODRIVER=dummy timeout 12s xvfb-run -a mgba /tmp/pokefirered-beyond-kanto.gba
-          STATUS=$?
+          cat > /tmp/bk-smoke.sh <<'EOF'
           set -e
-          if [ "$STATUS" -ne 124 ]; then
-            echo "mGBA exited unexpectedly with status $STATUS"
-            exit "$STATUS"
-          fi
-          echo "mGBA stayed alive through the boot smoke window."
+          export SDL_AUDIODRIVER=dummy
+          mgba /tmp/pokefirered-beyond-kanto.gba >/tmp/mgba.log 2>&1 &
+          EMU_PID=$!
+          trap 'kill $EMU_PID 2>/dev/null || true' EXIT
+
+          sleep 5
+          WINDOW=$(xdotool search --onlyvisible --name "mGBA" | head -1)
+          test -n "$WINDOW"
+          xdotool windowfocus "$WINDOW"
+
+          # Start skips the attract sequence; X is mGBA's default GBA A button.
+          xdotool key --window "$WINDOW" Return
+          sleep 2
+          xdotool key --window "$WINDOW" Return
+          sleep 2
+          xdotool key --window "$WINDOW" x
+          sleep 2
+
+          # Advance several Oak/introduction text boxes and exercise directional input.
+          for i in $(seq 1 8); do
+            xdotool key --window "$WINDOW" x
+            sleep 0.7
+          done
+          xdotool key --window "$WINDOW" Down Up Left Right
+          sleep 2
+
+          kill -0 "$EMU_PID"
+          scrot /tmp/beyond-kanto-smoke.png
+          test -s /tmp/beyond-kanto-smoke.png
+          echo "mGBA accepted gameplay input and remained alive."
+          EOF
+          chmod +x /tmp/bk-smoke.sh
+          xvfb-run -a -s "-screen 0 1280x720x24" /tmp/bk-smoke.sh
+
+      - name: Upload QA screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: beyond-kanto-qa-screenshot
+          path: /tmp/beyond-kanto-smoke.png
+          if-no-files-found: error
 
       - name: Build clean FireRed v1.0 reference
         run: |
