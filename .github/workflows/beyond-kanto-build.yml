@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev
+          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev mgba-sdl xvfb
 
       - name: Install agbcc into Beyond Kanto
         run: |
@@ -40,6 +40,18 @@ jobs:
         run: |
           make -j$(nproc) all
           cp pokefirered.gba /tmp/pokefirered-beyond-kanto.gba
+
+      - name: Emulator boot smoke test
+        run: |
+          set +e
+          SDL_AUDIODRIVER=dummy timeout 12s xvfb-run -a mgba /tmp/pokefirered-beyond-kanto.gba
+          STATUS=$?
+          set -e
+          if [ "$STATUS" -ne 124 ]; then
+            echo "mGBA exited unexpectedly with status $STATUS"
+            exit "$STATUS"
+          fi
+          echo "mGBA stayed alive through the boot smoke window."
 
       - name: Build clean FireRed v1.0 reference
         run: |
