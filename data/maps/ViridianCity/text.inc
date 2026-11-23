@@ -125,14 +125,14 @@ ViridianCity_Text_GymDoorsAreLocked::
 
 
 ViridianCity_Text_BeyondKantoLeagueBoard1::
-    .string "KANTO LEAGUE BOARD\\p"
-    .string "GLOBAL RANK: #{STR_VAR_1}\\n"
-    .string "RATING: {STR_VAR_2} RP\\n"
+    .string "KANTO LEAGUE BOARD\p"
+    .string "GLOBAL RANK: #{STR_VAR_1}\n"
+    .string "RATING: {STR_VAR_2} RP\n"
     .string "CAREER WINS: {STR_VAR_3}$"
 
 ViridianCity_Text_BeyondKantoLeagueBoard2::
-    .string "LOSSES: {STR_VAR_1}\\n"
-    .string "CURRENT STREAK: {STR_VAR_2}\\n"
-    .string "REPUTATION: {STR_VAR_3}\\p"
-    .string "Win official battles to climb the\\n"
+    .string "LOSSES: {STR_VAR_1}\n"
+    .string "CURRENT STREAK: {STR_VAR_2}\n"
+    .string "REPUTATION: {STR_VAR_3}\p"
+    .string "Win official battles to climb the\n"
     .string "KANTO LEAGUE rankings.$"
