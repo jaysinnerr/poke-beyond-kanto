@@ -1,6 +1,7 @@
 #include "global.h"
 #include "gflib.h"
 #include "bg_regs.h"
+#include "beyond_kanto_follower.h"
 #include "cable_club.h"
 #include "credits.h"
 #include "event_data.h"
@@ -2145,12 +2146,14 @@ static void InitObjectEventsLocal(void)
     SetPlayerAvatarTransitionFlags(player->transitionFlags);
     ResetInitialPlayerAvatarState();
     TrySpawnObjectEvents(0, 0);
+    BeyondKantoFollower_OnMapLoad();
     TryRunOnWarpIntoMapScript();
 }
 
 static void ReloadObjectsAndRunReturnToFieldMapScript(void)
 {
     SpawnObjectEventsOnReturnToField(0, 0);
+    BeyondKantoFollower_OnMapLoad();
     RunOnReturnToFieldMapScript();
 }
 

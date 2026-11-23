@@ -1,4 +1,5 @@
 #include "global.h"
+#include "beyond_kanto.h"
 #include "task.h"
 #include "help_system.h"
 #include "overworld.h"
@@ -903,8 +904,21 @@ void StartTrainerBattle(void)
     ScriptContext_Stop();
 }
 
+static void RecordBeyondKantoTrainerOutcome(void)
+{
+    if (gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
+        return;
+
+    if (gBattleOutcome == B_OUTCOME_WON)
+        BeyondKanto_RecordTrainerBattleResult(TRUE);
+    else if (gBattleOutcome == B_OUTCOME_LOST || gBattleOutcome == B_OUTCOME_DREW)
+        BeyondKanto_RecordTrainerBattleResult(FALSE);
+}
+
 static void CB2_EndTrainerBattle(void)
 {
+    RecordBeyondKantoTrainerOutcome();
+
     if (sTrainerBattleMode == TRAINER_BATTLE_EARLY_RIVAL)
     {
         if (IsPlayerDefeated(gBattleOutcome) == TRUE)
@@ -953,6 +967,8 @@ static void CB2_EndTrainerBattle(void)
 
 static void CB2_EndRematchBattle(void)
 {
+    RecordBeyondKantoTrainerOutcome();
+
     if (gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
     {
         SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);

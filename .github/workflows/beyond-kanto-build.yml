@@ -1,0 +1,129 @@
+name: Beyond Kanto Playable Patch
+
+on:
+  push:
+    branches: [ beyond-kanto ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-playable-patch:
+    runs-on: ubuntu-latest
+    env:
+      GAME_VERSION: FIRERED
+      GAME_LANGUAGE: ENGLISH
+      GAME_REVISION: 0
+      MODERN: 0
+      COMPARE: 0
+    steps:
+      - name: Checkout Beyond Kanto
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout agbcc
+        uses: actions/checkout@master
+        with:
+          path: agbcc
+          repository: pret/agbcc
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi libpng-dev mgba-sdl xvfb xdotool scrot
+
+      - name: Install agbcc into Beyond Kanto
+        run: |
+          ./build.sh
+          ./install.sh ../
+        working-directory: ./agbcc
+
+      - name: Build Pokémon Beyond Kanto
+        run: |
+          make -j$(nproc) all
+          cp pokefirered.gba /tmp/pokefirered-beyond-kanto.gba
+
+      - name: Emulator input smoke playthrough
+        run: |
+          cat > /tmp/bk-smoke.sh <<'EOF'
+          set -e
+          export SDL_AUDIODRIVER=dummy
+          mgba /tmp/pokefirered-beyond-kanto.gba >/tmp/mgba.log 2>&1 &
+          EMU_PID=$!
+          trap 'kill $EMU_PID 2>/dev/null || true' EXIT
+
+          sleep 8
+          WINDOW=$(xdotool search --onlyvisible --name "mGBA" | head -1)
+          test -n "$WINDOW"
+          xdotool windowfocus "$WINDOW"
+          scrot /tmp/beyond-kanto-before-input.png
+
+          # mGBA defaults: GBA A = keyboard X, B = Z, Start = Enter.
+          xdotool keydown --window "$WINDOW" x
+          sleep 0.25
+          xdotool keyup --window "$WINDOW" x
+          sleep 1
+          scrot /tmp/beyond-kanto-after-a.png
+
+          if cmp -s /tmp/beyond-kanto-before-input.png /tmp/beyond-kanto-after-a.png; then
+            echo "Screen did not react to GBA A input."
+            exit 1
+          fi
+
+          # Continue through several tutorial/intro pages with deliberate presses.
+          for i in $(seq 1 14); do
+            xdotool keydown --window "$WINDOW" x
+            sleep 0.12
+            xdotool keyup --window "$WINDOW" x
+            sleep 0.45
+          done
+          xdotool keydown --window "$WINDOW" Return
+          sleep 0.15
+          xdotool keyup --window "$WINDOW" Return
+          sleep 1
+
+          kill -0 "$EMU_PID"
+          scrot /tmp/beyond-kanto-smoke.png
+          test -s /tmp/beyond-kanto-smoke.png
+          echo "mGBA accepted GBA input, changed game state, and remained alive."
+          EOF
+          chmod +x /tmp/bk-smoke.sh
+          xvfb-run -a -s "-screen 0 1280x720x24" /tmp/bk-smoke.sh
+
+      - name: Upload QA screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: beyond-kanto-qa-screenshot
+          path: |
+            /tmp/beyond-kanto-before-input.png
+            /tmp/beyond-kanto-after-a.png
+            /tmp/beyond-kanto-smoke.png
+          if-no-files-found: error
+
+      - name: Build clean FireRed v1.0 reference
+        run: |
+          git worktree add /tmp/pokefirered-base master
+          (cd agbcc && ./install.sh /tmp/pokefirered-base)
+          cd /tmp/pokefirered-base
+          make -j$(nproc) all
+          cp pokefirered.gba /tmp/pokefirered-base.gba
+
+      - name: Verify exact FireRed v1.0 base
+        run: |
+          BASE_SHA=$(sha1sum /tmp/pokefirered-base.gba | awk '{print $1}')
+          echo "Base SHA1: $BASE_SHA"
+          test "$BASE_SHA" = "41cb23d8dccc8ebd7c649cd8fbb58eeace6e2fdc"
+
+      - name: Create playable IPS patch
+        run: |
+          python3 tools/make_ips.py             /tmp/pokefirered-base.gba             /tmp/pokefirered-beyond-kanto.gba             pokemon-beyond-kanto.ips
+          ls -lh pokemon-beyond-kanto.ips
+
+      - name: Upload Beyond Kanto patch
+        uses: actions/upload-artifact@v4
+        with:
+          name: pokemon-beyond-kanto-playable-patch
+          path: pokemon-beyond-kanto.ips
+          if-no-files-found: error
