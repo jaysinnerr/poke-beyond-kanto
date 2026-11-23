@@ -452,4 +452,17 @@ gSpecials::
 	def_special UpdateLoreleiDollCollection
 	def_special LoopWingFlapSound
 	def_special CreateEnemyEventMon
+// Pokémon: Beyond Kanto script API
+	def_special BeyondKanto_GetLeaguePoints
+	def_special BeyondKanto_GetGlobalRank
+	def_special BeyondKanto_GetWins
+	def_special BeyondKanto_GetLosses
+	def_special BeyondKanto_GetWinStreak
+	def_special BeyondKanto_GetBestWinStreak
+	def_special BeyondKanto_GetReputation
+	def_special BeyondKanto_GetTournamentWins
+	def_special BeyondKanto_GetChampionDefenses
+	def_special BeyondKanto_GetTier
+	def_special BeyondKanto_SpecialRecordTournamentWin
+	def_special BeyondKanto_SpecialRecordChampionDefense
 gSpecialsEnd::
