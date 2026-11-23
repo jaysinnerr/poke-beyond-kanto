@@ -904,10 +904,20 @@ void StartTrainerBattle(void)
     ScriptContext_Stop();
 }
 
+static void RecordBeyondKantoTrainerOutcome(void)
+{
+    if (gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
+        return;
+
+    if (gBattleOutcome == B_OUTCOME_WON)
+        BeyondKanto_RecordTrainerBattleResult(TRUE);
+    else if (gBattleOutcome == B_OUTCOME_LOST || gBattleOutcome == B_OUTCOME_DREW)
+        BeyondKanto_RecordTrainerBattleResult(FALSE);
+}
+
 static void CB2_EndTrainerBattle(void)
 {
-    if (gTrainerBattleOpponent_A != TRAINER_SECRET_BASE)
-        BeyondKanto_RecordTrainerBattleResult(!IsPlayerDefeated(gBattleOutcome));
+    RecordBeyondKantoTrainerOutcome();
 
     if (sTrainerBattleMode == TRAINER_BATTLE_EARLY_RIVAL)
     {
@@ -957,8 +967,7 @@ static void CB2_EndTrainerBattle(void)
 
 static void CB2_EndRematchBattle(void)
 {
-    if (gTrainerBattleOpponent_A != TRAINER_SECRET_BASE)
-        BeyondKanto_RecordTrainerBattleResult(!IsPlayerDefeated(gBattleOutcome));
+    RecordBeyondKantoTrainerOutcome();
 
     if (gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
     {
